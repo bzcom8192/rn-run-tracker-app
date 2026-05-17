@@ -9,6 +9,7 @@ import { Alert, Image, KeyboardAvoidingView, Platform, Text, TextInput, Touchabl
 export default function RunDetail() {
   const params = useLocalSearchParams<Partial<Record<keyof RunData, string>>>();
   const [runDetail, setRunDetail] = React.useState<RunData | null>(null);
+  const [btnStatus, setBtnStatus] = React.useState<'idle' | 'saving' | 'deleting'>('idle');
 
   const fetchRunDetail = async (id: string) => {
     try {
@@ -42,6 +43,7 @@ export default function RunDetail() {
       return;
     }
 
+    setBtnStatus('saving');
     const { data, error } = await supabase.from('runs')
       .update({
         location: runDetail.location,
@@ -58,6 +60,7 @@ export default function RunDetail() {
         { text: 'ตกลง', onPress: () => router.back() }
       ]);
     }
+    setBtnStatus('idle');
   };
 
   const handlePressDelete = async () => {
@@ -70,7 +73,21 @@ export default function RunDetail() {
         { text: 'ยกเลิก', style: 'cancel' },
         {
           text: 'ลบ', style: 'destructive', onPress: async () => {
-            const { error } = await supabase.from('runs').delete().eq('id', runDetail.id);
+            setBtnStatus('deleting');
+            // ลบรูปภาพจาก storage ก่อน (ถ้ามี)
+            if (runDetail.image_url) {
+              //https://aysyacmsctqneqrfqoyt.supabase.co/storage/v1/object/public/run_bk/run-1778996398973.jpg
+              const imagePath = runDetail.image_url.split('/storage/v1/object/public/run_bk/')[1];
+              if (imagePath) {
+                const { error: deleteError } = await supabase.storage.from('run_bk').remove([imagePath]);
+                if (deleteError) {
+                  console.error('Error deleting image from storage:', deleteError);
+                }
+              }
+            }
+
+            // ลบข้อมูลการวิ่งจากฐานข้อมูล
+            let { error } = await supabase.from('runs').delete().eq('id', runDetail.id);
             if (error) {
               Alert.alert('เกิดข้อผิดพลาด', 'ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้ง');
               console.error('Error deleting run data:', error);
@@ -79,6 +96,7 @@ export default function RunDetail() {
                 { text: 'ตกลง', onPress: () => router.back() }
               ]);
             }
+            setBtnStatus('idle');
           }
         }
       ]
@@ -201,10 +219,17 @@ export default function RunDetail() {
           onPress={handlePressSave}
         >
           <Feather name="save" size={24} color="white" />
-          <Text style={{
-            color: 'white',
-            fontFamily: "Kanit_600SemiBold",
-          }}>บันทึกการแก้ไข</Text>
+          {btnStatus === 'saving' ? (
+            <Text style={{
+              color: 'white',
+              fontFamily: "Kanit_600SemiBold",
+            }}>กำลังบันทึก...</Text>
+          ) : (
+            <Text style={{
+              color: 'white',
+              fontFamily: "Kanit_600SemiBold",
+            }}>บันทึกการแก้ไข</Text>
+          )}
         </TouchableOpacity>
         <TouchableOpacity
           style={{
@@ -219,10 +244,17 @@ export default function RunDetail() {
           onPress={handlePressDelete}
         >
           <MaterialIcons name="delete" size={24} color="red" />
-          <Text style={{
-            color: 'red',
-            fontFamily: "Kanit_600SemiBold",
-          }}>ลบรายการนี้</Text>
+          {btnStatus === 'deleting' ? (
+            <Text style={{
+              color: 'red',
+              fontFamily: "Kanit_600SemiBold",
+            }}>กำลังลบ...</Text>
+          ) : (
+            <Text style={{
+              color: 'red',
+              fontFamily: "Kanit_600SemiBold",
+            }}>ลบรายการนี้</Text>
+          )}
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

@@ -12,6 +12,7 @@ export default function Add() {
     const [timeOfDay, setTimeOfDay] = useState(0)
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [base64Image, setBase64Image] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
 
     const pickImage = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -46,6 +47,7 @@ export default function Add() {
         let imageUrl = null;
 
         if (base64Image) {
+            setIsSaving(true);
             const { data, error } = await supabase.storage.from('run_bk')
                 .upload(`run-${Date.now()}.jpg`, Base64.decode(base64Image), {
                     cacheControl: '3600',
@@ -55,7 +57,7 @@ export default function Add() {
 
             if (error) {
                 Alert.alert('เกิดข้อผิดพลาด', 'ไม่สามารถอัปโหลดรูปภาพได้ โปรดลองอีกครั้ง');
-                console.error('Error uploading image:', error);
+                setIsSaving(false);
                 return;
             }
 
@@ -80,6 +82,7 @@ export default function Add() {
                 { text: 'ตกลง', onPress: () => router.back() }
             ]);
         }
+        setIsSaving(false);
     };
 
 
@@ -218,11 +221,18 @@ export default function Add() {
                 }}
                 onPress={handlePressSave}
             >
-                <Text style={{
+                {isSaving ? (
+                    <Text style={{
+                        color: 'white',
+                        fontSize: 16,
+                        fontFamily: 'Kanit_600SemiBold',
+                    }}>กำลังบันทึก...</Text>
+                ) : (<Text style={{
                     color: 'white',
                     fontSize: 16,
                     fontFamily: 'Kanit_600SemiBold',
                 }}>บันทึกข้อมูล</Text>
+                )}
             </TouchableOpacity>
         </View >
     )

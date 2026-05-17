@@ -104,13 +104,27 @@ export default function Run() {
                 flex: 1,
                 paddingHorizontal: 20,
             }}>
-                <FlatList
-                    data={runs}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={showListRuns}
-                    showsHorizontalScrollIndicator={false}
-                    showsVerticalScrollIndicator={false}
-                />
+                {runs.length === 0 ? (
+                    <View style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <Text style={{
+                            fontSize: 18,
+                            color: '#999',
+                            fontFamily: 'Kanit_400Regular',
+                        }}>ยังไม่มีข้อมูลการวิ่ง</Text>
+                    </View>
+                ) : (
+                    <FlatList
+                        data={runs}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={showListRuns}
+                        showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
+                    />
+                )}
             </View>
             {/* Add button (bottom right) */}
             <TouchableOpacity
