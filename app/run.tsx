@@ -49,6 +49,7 @@ export default function Run() {
                     borderRadius: 15,
                     overflow: 'hidden',
                     elevation: 2,
+                    position: 'relative',
                 }}>
                 <Image
                     source={{ uri: item.image_url }}
@@ -80,6 +81,22 @@ export default function Run() {
                         }}>{new Date(item.run_date).toLocaleDateString("th-TH", {
                             dateStyle: "long",
                         })}</Text>
+                </View>
+                {/* Distance */}
+                <View style={{
+                    position: 'absolute',
+                    top: 5,
+                    right: 5,
+                    backgroundColor: '#2595ff',
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    borderRadius: 8,
+                }}>
+                    <Text style={{
+                        color: 'white',
+                        fontSize: 14,
+                        fontFamily: 'Kanit_600SemiBold',
+                    }}>{item.distance} กม.</Text>
                 </View>
             </TouchableOpacity>
         )
