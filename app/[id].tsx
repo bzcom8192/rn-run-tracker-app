@@ -7,7 +7,7 @@ import React, { useEffect } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function RunDetail() {
-  const params = useLocalSearchParams<Partial<Record<keyof RunData, string>>>();
+  const { id } = useLocalSearchParams() as { id: string };
   const [runDetail, setRunDetail] = React.useState<RunData | null>(null);
   const [btnStatus, setBtnStatus] = React.useState<'idle' | 'saving' | 'deleting'>('idle');
 
@@ -30,10 +30,10 @@ export default function RunDetail() {
   };
 
   useEffect(() => {
-    if (params.id) {
-      fetchRunDetail(params.id);
+    if (id) {
+      fetchRunDetail(id);
     }
-  }, [params.id]);
+  }, [id]);
 
 
   const handlePressSave = async () => {

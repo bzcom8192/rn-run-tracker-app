@@ -1,7 +1,7 @@
 import { supabase } from '@/services/supabase'
 import { RunData } from '@/types'
 import { router, useFocusEffect } from 'expo-router'
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { FlatList, Image, KeyboardAvoidingView, Platform, Text, TouchableOpacity, View } from 'react-native'
 
 export default function Run() {
@@ -38,8 +38,7 @@ export default function Run() {
             <TouchableOpacity
                 onPress={() => {
                     router.push({
-                        pathname: '/[id]',
-                        params: { id: item.id.toString() },
+                        pathname: `/${item.id}`,
                     })
                 }}
                 style={{
